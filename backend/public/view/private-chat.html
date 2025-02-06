@@ -1,0 +1,34 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h2>Private Chat</h2>
+    <div id="privateMessages"></div>
+    <input type="text" id="recipient" placeholder="Enter recipient username" />
+    <input type="text" id="privateMessage" placeholder="Type a message..." />
+    <button onclick="sendPrivateMessage()">Send</button>
+        <!-- <button id="sendPrivateMessage" class="btn btn-primary">Send</button> -->
+  </div>
+  <script src="private-chat.js"></script>
+  <script>
+    const socket = io('http://localhost:5000');
+  
+    function sendPrivateMessage() {
+      const recipient = document.getElementById('recipient').value;
+      const message = document.getElementById('privateMessage').value;
+      const sender = localStorage.getItem('username');
+  
+      socket.emit('privateMessage', { sender, recipient, message });
+    }
+  
+    socket.on('receivePrivateMessage', ({ sender, message }) => {
+      alert(`Private message from ${sender}: ${message}`);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Room</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #messages {
+      border: 1px solid #ccc;
+      height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .message {
+      padding: 5px;
+      margin: 5px 0;
+      border-radius: 5px;
+    }
+    .my-message {
+      background-color: #007bff;
+      color: white;
+      text-align: right;
+      padding: 5px;
+    }
+    .other-message {
+      background-color: #f1f1f1;
+    }
+    #typingIndicator {
+      font-style: italic;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-3">
+    <h2 class="text-center">Chat Room</h2>
+
+    <!-- Messages Display -->
+    <div id="messages" class="border rounded p-3"></div>
+
+    <!-- Typing Indicator -->
+    <p id="typingIndicator"></p>
+
+    <!-- Message Input -->
+    <div class="input-group">
+      <input type="text" id="messageInput" class="form-control" placeholder="Type a message..." />
+      <button id="sendMessage" class="btn btn-primary">Send</button>
+    </div>
+
+    <!-- Leave Room Button -->
+    <button id="leaveRoom" class="btn btn-danger mt-2">Leave Room</button>
+
+    <!-- Logout Button -->
+    <button id="logoutButton" class="btn btn-danger mt-2">Logout</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io('http://localhost:5000');
+    const messageInput = document.getElementById('messageInput');
+    const sendMessageButton = document.getElementById('sendMessage');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const leaveRoomButton = document.getElementById('leaveRoom');
+    const logoutButton = document.getElementById('logoutButton');
+    const messagesDiv = document.getElementById('messages');
+
+    let username = localStorage.getItem('username') || prompt("Enter your username:");
+    localStorage.setItem('username', username);
+
+    let room = localStorage.getItem('room') || 'devops'; // Default room if not set
+    localStorage.setItem('room', room);
+
+    socket.emit('joinRoom', room, username);
+
+    // Send Message
+    sendMessageButton.addEventListener('click', () => {
+      const message = messageInput.value.trim();
+      if (message) {
+        socket.emit('sendMessage', message, room, username);
+        messageInput.value = '';
+      }
+    });
+
+    // Typing Indicator
+    messageInput.addEventListener('input', () => {
+      socket.emit('typing', room, username);
+    });
+
+    // Receive Messages
+    socket.on('receiveMessage', (message, fromUser) => {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', fromUser === username ? 'my-message' : 'other-message');
+      msgDiv.innerHTML = `<strong>${fromUser}</strong>: ${message}`;
+      messagesDiv.appendChild(msgDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to latest message
+    });
+
+    // Typing Indicator Display
+    socket.on('typing', (fromUser) => {
+      if (fromUser !== username) {  // Don't show for the current user
+        typingIndicator.textContent = `${fromUser} is typing...`;
+        setTimeout(() => typingIndicator.textContent = '', 1000); // Hide after 1 second
+      }
+    });
+
+    // Leave Room
+    leaveRoomButton.addEventListener('click', () => {
+      socket.emit('leaveRoom', room);
+      room = null;
+      localStorage.removeItem('room');
+      window.location.href = '/view/join-room.html'; // Redirect to the correct login page
+      messagesDiv.innerHTML = '';
+      typingIndicator.textContent = '';
+    });
+
+    // Logout Button
+    logoutButton.addEventListener('click', () => {
+      // Clear user session and data
+      localStorage.removeItem('username');
+      localStorage.removeItem('room');
+      socket.emit('logout'); // Optionally inform server about logout
+      window.location.href = '/view/login.html'; // Redirect to the correct login page
+    });
+  </script>
+</body>
+</html>

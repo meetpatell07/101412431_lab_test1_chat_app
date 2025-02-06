@@ -3,8 +3,8 @@ const { sendMessage, getMessages, joinRoom, leaveRoom } = require('../controller
 
 const router = express.Router();
 
-router.post('/send-message', sendMessage);
-router.get('/get-messages/:room', getMessages);
+router.post('/send', sendMessage);
+router.get('/get/:room', getMessages);
 router.post('/join-room', joinRoom);
 router.post('/leave-room', leaveRoom);
 
