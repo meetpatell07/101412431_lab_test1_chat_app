@@ -40,4 +40,4 @@ This is a real-time chat application built using **Socket.io**, **Express.js**, 
 Clone the project repository to your local machine:
 
 ```bash
-git clone https://github.com/yourusername/yourrepo.git
+git clone https://github.com/meetpatell07/101412431_lab_test1_chat_app
