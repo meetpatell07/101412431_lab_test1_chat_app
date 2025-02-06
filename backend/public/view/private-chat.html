@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,27 +9,73 @@
 <body>
   <div class="container">
     <h2>Private Chat</h2>
-    <div id="privateMessages"></div>
-    <input type="text" id="recipient" placeholder="Enter recipient username" />
-    <input type="text" id="privateMessage" placeholder="Type a message..." />
-    <button onclick="sendPrivateMessage()">Send</button>
-        <!-- <button id="sendPrivateMessage" class="btn btn-primary">Send</button> -->
+    <div id="privateMessages" class="mb-3" style="max-height: 300px; overflow-y: scroll;">
+      <!-- Private messages will appear here -->
+    </div>
+    <input type="text" id="recipient" class="form-control mb-2" placeholder="Enter recipient username" />
+    <input type="text" id="privateMessage" class="form-control mb-2" placeholder="Type a message..." />
+    <button class="btn btn-primary" onclick="sendPrivateMessage()">Send</button>
+    <p id="typingIndicator" class="text-muted" style="display: none;">User is typing...</p>
   </div>
-  <script src="private-chat.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client/dist/socket.io.min.js"></script>
   <script>
     const socket = io('http://localhost:5000');
-  
+    const username = localStorage.getItem('username');
+
+    // Send private message
     function sendPrivateMessage() {
       const recipient = document.getElementById('recipient').value;
       const message = document.getElementById('privateMessage').value;
-      const sender = localStorage.getItem('username');
-  
-      socket.emit('privateMessage', { sender, recipient, message });
+      if (message.trim()) {
+        socket.emit('privateMessage', { sender: username, recipient, message });
+        document.getElementById('privateMessage').value = '';  // Clear message input
+      }
     }
-  
+
+    // Display received private message
     socket.on('receivePrivateMessage', ({ sender, message }) => {
-      alert(`Private message from ${sender}: ${message}`);
+      const messageDiv = document.createElement('div');
+      messageDiv.textContent = `${sender}: ${message}`;
+      document.getElementById('privateMessages').appendChild(messageDiv);
+      scrollToBottom();
     });
+
+    // Typing indicator - when sender starts typing
+    const typingTimeout = 3000;  // 3 seconds delay to stop showing typing indicator
+    let typingTimer;
+
+    function showTypingIndicator() {
+      document.getElementById('typingIndicator').style.display = 'block';
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(hideTypingIndicator, typingTimeout);
+    }
+
+    function hideTypingIndicator() {
+      document.getElementById('typingIndicator').style.display = 'none';
+    }
+
+    // Emit typing status
+    document.getElementById('privateMessage').addEventListener('input', () => {
+      const recipient = document.getElementById('recipient').value;
+      socket.emit('typing', { sender: username, recipient });
+      showTypingIndicator();
+    });
+
+    // Receive typing event and display indicator
+    socket.on('userTyping', ({ sender }) => {
+      const recipient = document.getElementById('recipient').value;
+      if (recipient && recipient !== username) {
+        document.getElementById('typingIndicator').textContent = `${sender} is typing...`;
+        document.getElementById('typingIndicator').style.display = 'block';
+      }
+    });
+
+    // Scroll to the bottom of the message box
+    function scrollToBottom() {
+      const messageBox = document.getElementById('privateMessages');
+      messageBox.scrollTop = messageBox.scrollHeight;
+    }
   </script>
 </body>
 </html>

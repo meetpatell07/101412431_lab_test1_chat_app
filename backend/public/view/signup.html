@@ -5,6 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Signup</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4f7fc;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .container {
+      max-width: 450px;
+      margin-top: 80px;
+      padding: 30px;
+      border-radius: 10px;
+      background-color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 30px;
+      margin-bottom: 30px;
+      color: #007bff;
+    }
+
+    .form-label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .form-control {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-primary:focus {
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .container .mb-3 {
+      margin-bottom: 20px;
+    }
+
+    .form-text {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .back-to-login {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .back-to-login a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .back-to-login a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -28,6 +115,10 @@
       </div>
       <button type="submit" class="btn btn-primary">Signup</button>
     </form>
+
+    <div class="back-to-login">
+      <p>Already have an account? <a href="/view/login.html">Login here</a></p>
+    </div>
   </div>
 
   <script>
@@ -47,7 +138,7 @@
       
       if (response.ok) {
         alert('Signup successful!');
-        window.location.href = '/login.html';
+        window.location.href = '/view/login.html';
       } else {
         alert('Signup failed');
       }
